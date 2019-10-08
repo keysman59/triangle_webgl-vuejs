@@ -1,8 +1,15 @@
 <template>
   <div class="hello">
     <canvas ref="glcanvas" width="400" height="300">Ваш браузер не поддерживает элемент canvas</canvas>
-    <button @click="currentScale = [1.0, aspectRatio]" class="button">По часовой</button>
-    <button @click="currentScale = [-1.0, aspectRatio]" class="button">Против часовой</button>
+    <!-- <button @click="currentRotation = [1.0, aspectRatio]" class="button">По часовой</button>
+    <button @click="currentRotation = [-1.0, aspectRatio]" class="button">Против часовой</button> -->
+
+    <button @click="degreesPerSecond = 90.0" class="button">По часовой</button>
+    <button @click="degreesPerSecond = -90.0" class="button">Против часовой</button>
+
+
+    <!-- <button @click="currentRotation = [1, 1]" class="button">По часовой</button>
+    <button @click="currentRotation = [-1, 1]" class="button">Против часовой</button> -->
     <!-- switch the direction of color change -->
     <button @click="uColorDirection = uColorDirection === 'ltr' ? 'rtl' : 'ltr'" class="button">Поменять цвет</button>
   </div>
@@ -87,7 +94,7 @@ export default {
       this.aspectRatio = this.glCanvas.width/this.glCanvas.height
       this.currentRotation = [0, 1]
       // direction of rotation
-      this.currentScale = [-1.0, this.aspectRatio] 
+      this.currentScale = [0.0, this.aspectRatio] 
 
       this.vertexArray = new Float32Array([
         -0.5, -0.5, 0.0,
@@ -95,7 +102,6 @@ export default {
         0.5, -0.5, 0.0
       ])
       
-
       this.vertexBuffer = this.gl.createBuffer()
       this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer)
       this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertexArray, this.gl.STATIC_DRAW)
@@ -151,10 +157,8 @@ export default {
       this.gl.clear(this.gl.COLOR_BUFFER_BIT)
 
       let radians = this.currentAngle * Math.PI / 180.0
-      // this.currentRotation[0] = Math.sin(radians)
-      // this.currentRotation[1] = Math.cos(radians)
       this.currentScale[0] = Math.sin(radians);
-      // this.currentRotation[2] = Math.sin(radians)
+
 
       this.gl.useProgram(this.shaderProgram)
 
@@ -170,6 +174,9 @@ export default {
       this.gl.uniform4fv(this.uGlobalColor, this.uCurrentColor[this.currentColorIndex])
 
       this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer)
+
+      // this.gl.vertexAttriblf(a_PointSize, 50.0);
+      // this.gl.vertexAttrib3f(a_Position, -0.5, -0.5, -0.4);
 
       this.aVertexPosition =
           this.gl.getAttribLocation(this.shaderProgram, 'aVertexPosition')
