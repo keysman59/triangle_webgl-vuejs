@@ -5,34 +5,6 @@
     <button @click="currentScale = [-1.0, aspectRatio]" class="button">Против часовой</button>
     <!-- switch the direction of color change -->
     <button @click="uColorDirection = uColorDirection === 'ltr' ? 'rtl' : 'ltr'" class="button">Поменять цвет</button>
-    <script id="vertex-shader" type="x-shader/x-vertex">
-      attribute vec2 aVertexPosition;
-
-      uniform vec2 uScalingFactor;
-      uniform vec2 uRotationVector;
-
-      void main() {
-        vec2 rotatedPosition = vec2(
-          aVertexPosition.x * uRotationVector.y +
-                aVertexPosition.y * uRotationVector.x,
-          aVertexPosition.y * uRotationVector.y -
-                aVertexPosition.x * uRotationVector.x
-        );
-
-        gl_Position = vec4(rotatedPosition * uScalingFactor, 0.0, 1.0);
-      }
-    </script>
-    <script id="fragment-shader" type="x-shader/x-fragment">
-      #ifdef GL_ES
-        precision highp float;
-      #endif
-
-      uniform vec4 uGlobalColor;
-
-      void main() {
-        gl_FragColor = uGlobalColor;
-      }
-    </script>
   </div>
 </template>
 
@@ -113,7 +85,7 @@ export default {
       this.shaderProgram = this.buildShaderProgram(shaderSet)
 
       this.aspectRatio = this.glCanvas.width/this.glCanvas.height
-      this.currentRotation = [1, 1]
+      this.currentRotation = [0, 1]
       // direction of rotation
       this.currentScale = [-1.0, this.aspectRatio] 
 
@@ -179,8 +151,10 @@ export default {
       this.gl.clear(this.gl.COLOR_BUFFER_BIT)
 
       let radians = this.currentAngle * Math.PI / 180.0
-      this.currentRotation[0] = Math.sin(radians)
-      this.currentRotation[1] = Math.cos(radians)
+      // this.currentRotation[0] = Math.sin(radians)
+      // this.currentRotation[1] = Math.cos(radians)
+      this.currentScale[0] = Math.sin(radians);
+      // this.currentRotation[2] = Math.sin(radians)
 
       this.gl.useProgram(this.shaderProgram)
 
@@ -190,6 +164,8 @@ export default {
 
       this.gl.uniform2fv(this.uScalingFactor, this.currentScale)
       this.gl.uniform2fv(this.uRotationVector, this.currentRotation)
+
+      // this.gl.uniform3fv(this.uRotationVector, this.currentRotation, this.currentRotation)
       // the color is set from the uCurrentColor array at the currentColorIndex
       this.gl.uniform4fv(this.uGlobalColor, this.uCurrentColor[this.currentColorIndex])
 
@@ -204,7 +180,7 @@ export default {
       this.gl.drawArrays(this.gl.TRIANGLES, 0, this.vertexCount)
       
       window.requestAnimationFrame(currentTime => {
-        let deltaAngle = ((currentTime - this.previousTime) / 1000.0) * this.degreesPerSecond
+        let deltaAngle = ((currentTime - this.previousTime) / 1300.0) * this.degreesPerSecond
         this.currentAngle = (this.currentAngle + deltaAngle) % 360
 
         this.previousTime = currentTime
